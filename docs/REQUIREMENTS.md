@@ -32,6 +32,8 @@ MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체
 - `--embedding`은 필수이며 `<provider>/<model>` 형식이어야 한다. MVP의 유효 provider는 `openai`다. 예: `--embedding openai/text-embedding-3-small`.
 - `--dimensions`, `--batch-size`, `--max-batch-tokens`, `--overwrite`, `--reuse`, `--include-content`, `--timeout`, `--max-retries` 옵션을 제공해야 한다.
 - `--batch-size`는 요청당 최대 항목 수이며 기본값은 100이다. `--max-batch-tokens`는 요청당 누적 입력 토큰 상한이며 기본값은 100,000이다.
+- `--timeout`의 기본값은 30초이고, `--max-retries`의 기본값은 5다.
+- build의 `--include-content` 기본값은 `true`다. content를 포함한 파일은 이후 `--reuse` 병합 build의 원본으로 사용할 수 있다.
 - 저장 벡터와 쿼리 벡터는 항상 L2 정규화해야 하며, 이를 비활성화하는 CLI 옵션을 제공해서는 안 된다.
 - 출력 경로에 파일이 이미 있으면 기본적으로 build를 실패시켜야 한다. `--overwrite`를 명시한 경우에만 검증을 마친 임시 파일을 원자적으로 기존 파일과 교체해야 한다.
 - `--dimensions`는 선택 사항이며, 파일 벡터를 사후 변환하는 옵션이 아니라 provider/model에 전달하는 임베딩 생성 요청값이어야 한다.
