@@ -69,6 +69,8 @@ root package         Store, MemoryStore, Engine, 공개 타입과 오류
 
 정규화된 벡터의 내적은 cosine similarity와 같다. 동점은 파일 내 입력 순서, 그 다음 ID 오름차순으로 정해 결과를 항상 결정적으로 만든다.
 
+검색의 기본 `Limit`은 5이며, Go API에서 `SearchOptions.Limit`이 0인 경우에도 같은 기본값을 적용한다. `MinScore`를 지정하지 않으면 점수 하한 없이 상위 `Limit`개를 반환하고, 지정하면 해당 점수 이상인 결과만 반환한다.
+
 ## 입력 모델
 
 MVP는 JSON 배열 래퍼를 지원한다.
@@ -97,7 +99,7 @@ id = UUIDv5(embedstore-fixed-namespace, normalized(content) + canonical-json(dat
 
 content 또는 data가 달라지면 자동 생성 ID도 달라진다. 같은 content/data 조합은 같은 ID를 생성하므로 validation에서 중복 ID 오류가 된다. 내용이 바뀌어도 ID를 유지하거나 외부 시스템과 항목을 연결해야 하는 경우에는 명시적 `id`를 제공해야 한다.
 
-데이터셋 이름과 버전은 입력 JSON이 소유하므로 옵션 누락으로 다른 데이터셋 manifest가 만들어지는 일을 방지한다. CI는 입력 JSON을 생성하거나 갱신할 때 Git tag 또는 commit SHA 등을 `datasetVersion`에 기록할 수 있다. 선택 필드(`tags`, `enabled`, `weight`, `labels`)와 JSONL은 포맷 호환성을 고려해 후속 버전에서 추가한다. JSONL을 지원할 때는 최상위 객체가 없으므로 별도 manifest 파일을 함께 사용한다.
+데이터셋 이름과 버전은 입력 JSON이 소유하므로 옵션 누락으로 다른 데이터셋 manifest가 만들어지는 일을 방지한다. CI는 입력 JSON을 생성하거나 갱신할 때 Git tag 또는 commit SHA 등을 `datasetVersion`에 기록할 수 있다. 선택 필드(`tags`, `enabled`, `weight`, `labels`)는 포맷 호환성을 고려해 후속 버전에서 추가한다.
 
 ## 기존 `.embed` 병합 빌드
 
@@ -148,6 +150,8 @@ Manifest에는 최소한 다음을 기록한다.
 
 체크섬은 magic부터 checksum 직전까지의 모든 바이트를 대상으로 한다. reader는 magic, 지원 포맷 버전, 파일 길이, 항목 수, metadata, 벡터 차원, NaN/Inf, zero vector 및 checksum을 검증한다.
 
+CLI의 `inspect`와 `verify`는 검증 깊이가 다르다. `inspect`는 manifest와 저장된 checksum 값을 빠르게 조회하며 checksum 재계산이나 전체 벡터 순회는 하지 않는다. `verify`는 모든 offset/length, metadata JSON, 벡터 및 checksum을 전체 검사해 파일 무결성을 확인한다.
+
 ## 메모리와 검색 엔진
 
 `MemoryStore`는 벡터를 `[][]float32`가 아닌 단일 연속 배열로 보관한다.
@@ -192,6 +196,8 @@ results, err := engine.Search(ctx, "올해 이직해도 될까요?", embedstore.
 
 임베딩 식별자는 `<provider>/<model>` 형식의 정규화된 문자열을 사용한다. 예를 들어 `openai/text-embedding-3-small`이다. 기본적으로 `NewEngine`은 파일 manifest의 embedding과 dimensions가 `Embedder`와 일치하는지 검사한다. 같은 차원이라도 provider 또는 모델이 다르면 벡터 공간이 호환되지 않으므로 `ErrModelMismatch`를 반환한다. 특별한 custom embedder에는 호환성 검사를 끄는 옵션을 제공할 수 있으나 기본값은 검사 활성화다.
 
+CLI search는 별도의 임베딩 선택을 받지 않고 파일 manifest의 embedding으로 provider와 모델을 선택한다. 반면 Go API는 애플리케이션이 `Embedder`를 주입하며, `NewEngine`의 호환성 검사가 해당 embedder와 파일 manifest의 일치를 보장한다.
+
 ## OpenAI 연동
 
 OpenAI 구현은 `embedding/openai` 패키지에 둔다. API key는 환경변수 또는 옵션으로만 받고 파일과 로그에 절대 저장하지 않는다. 클라이언트는 배치 요청, context 취소, timeout, 사용자 HTTP client, 응답 순서 보장 및 차원 검증을 지원한다.
@@ -212,4 +218,4 @@ OpenAI MVP의 기본 배치 정책은 요청당 최대 100개 항목 및 누적 
 
 Go module 버전, dataset 버전, file format 버전은 각각 독립적이다. 예를 들어 module `v0.3.0`이 file format `1`, dataset `1.7.0`을 읽을 수 있다.
 
-MVP 후에는 JSONL, 기존 `.embed` 병합 빌드, shell, 평가 도구, 평면 labels 필터, mmap, 양자화, 다른 provider, HNSW를 차례로 추가한다. 파일 포맷 버전 1은 v1.0.0 이전에도 호환성 정책을 명확히 유지하며, 호환되지 않는 변경은 새 포맷 버전으로만 도입한다.
+MVP 후에는 기존 `.embed` 병합 빌드, shell, 평가 도구, 평면 labels 필터, mmap, 양자화, 다른 provider, HNSW를 차례로 추가한다. 파일 포맷 버전 1은 v1.0.0 이전에도 호환성 정책을 명확히 유지하며, 호환되지 않는 변경은 새 포맷 버전으로만 도입한다.

@@ -4,7 +4,7 @@
 
 `embedstore`는 JSON 콘텐츠를 OpenAI 임베딩으로 변환해 하나의 `.embed` 파일로 만들고, CLI와 Go 모듈에서 메모리 기반 의미 검색을 제공해야 한다.
 
-MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체 메모리 로드 및 완전 탐색이다. JSONL, 증분 빌드, 대화형 shell, evaluate, metadata 필터, mmap, 양자화 및 ANN 인덱스는 MVP 이후 범위다.
+MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체 메모리 로드 및 완전 탐색이다. 기존 `.embed` 병합 build, 대화형 shell, evaluate, metadata 필터, mmap, 양자화 및 ANN 인덱스는 MVP 이후 범위다.
 
 ## 기능 요구사항
 
@@ -144,11 +144,12 @@ embedstore search \
 
 ### 파일 검사
 
-- `embedstore inspect --file <path>`는 dataset name/version, format version, embedding, dimensions, item count, normalized 여부, vector type, file size, 생성 시각, checksum 상태를 표시해야 한다.
+- `embedstore inspect --file <path>`는 dataset name/version, format version, embedding, dimensions, item count, normalized 여부, vector type, file size, 생성 시각, 기록된 checksum 값을 표시해야 한다. inspect는 전체 checksum 재계산이나 모든 벡터 순회를 수행하지 않는다.
 - `inspect`는 `--list`, `--id`, `--output text|json`, `--pretty`를 지원해야 한다. 기본 출력 형식은 `text`다.
 - `--list`는 저장 항목의 index와 ID 목록을 출력하고, `--id <id>`는 특정 항목의 index, ID, content(저장된 경우), data를 출력해야 한다.
 - `--list`와 `--id`는 동시에 사용할 수 없으며, 함께 지정하면 오류를 반환해야 한다.
-- `embedstore verify --file <path>`는 magic bytes, 포맷 버전, 파일 길이, 벡터 수와 차원, metadata 수와 JSON, checksum, NaN/Inf, zero vector를 검사해야 한다.
+- `embedstore verify --file <path>`는 전체 파일 무결성을 검사해야 한다. 검사 항목은 magic bytes, 포맷 버전, 파일 길이와 모든 offset/length 범위, manifest와 metadata 수, 모든 metadata JSON, 벡터 수와 차원, 전체 checksum 재계산, 모든 벡터의 NaN/Inf 및 zero vector다.
+- `verify`는 `--output text|json`, `--pretty`를 지원하며 기본 출력 형식은 `text`다.
 
 #### inspect 출력
 
@@ -167,7 +168,7 @@ Dimensions:       1536
 Items:            5,230
 Normalized:       true
 Vector type:      float32
-Checksum:         valid
+Checksum:         sha256:ab12...
 ```
 
 `--list`는 저장 순서대로 항목 목록을 출력한다.
@@ -216,6 +217,44 @@ embedstore inspect \
     "topic": "career",
     "intent": "job_change"
   }
+}
+```
+
+#### verify 출력
+
+`verify`는 배포 전후 또는 CI에서 파일이 손상되지 않았는지 완전하게 확인할 때 사용한다.
+
+```bash
+embedstore verify --file knowledge.embed
+```
+
+```text
+Verification successful
+
+File:       knowledge.embed
+Items:      5,230
+Vectors:    valid
+Metadata:   valid
+Checksum:   valid
+```
+
+검증 실패 시 명령은 0이 아닌 종료 코드로 끝나며, 오류에는 가능한 경우 파일 path와 byte offset을 포함해야 한다.
+
+```bash
+embedstore verify \
+  --file knowledge.embed \
+  --output json \
+  --pretty
+```
+
+```json
+{
+  "file": "knowledge.embed",
+  "valid": true,
+  "itemCount": 5230,
+  "vectors": "valid",
+  "metadata": "valid",
+  "checksum": "valid"
 }
 ```
 
@@ -280,7 +319,7 @@ ErrInvalidQuery
 | 버전 | 범위 |
 | --- | --- |
 | `v0.1.0` | MVP: file format, memory search, OpenAI, validate/build/search/inspect/verify |
-| `v0.2.0` | JSONL, 기존 `.embed` 병합 build, shell, evaluate |
+| `v0.2.0` | 기존 `.embed` 병합 build, shell, evaluate |
 | `v0.3.0` | labels 기반 필터, batch query, benchmark command |
 | `v0.4.0` | mmap, 추가 embedding provider |
 | `v1.0.0` | 파일 포맷과 공개 API 안정화, 운영 검증 완료 |
