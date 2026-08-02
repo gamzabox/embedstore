@@ -49,6 +49,7 @@ type SearchResult struct {
 	Score   float32         `json:"score"`
 	Content string          `json:"content,omitempty"`
 	Data    json.RawMessage `json:"data"`
+	Vector  []float32       `json:"vector,omitempty"`
 }
 type Store interface {
 	Manifest() Manifest
@@ -125,7 +126,7 @@ func (s *MemoryStore) SearchVector(ctx context.Context, q []float32, o SearchOpt
 			score += q[j] * s.vectors[i*s.manifest.Dimensions+j]
 		}
 		if o.MinScore == nil || score >= *o.MinScore {
-			cs = append(cs, c{i, SearchResult{ID: x.ID, Score: score, Content: x.Content, Data: x.Data}})
+			cs = append(cs, c{i, SearchResult{ID: x.ID, Score: score, Content: x.Content, Data: x.Data, Vector: append([]float32(nil), s.vectors[i*s.manifest.Dimensions:(i+1)*s.manifest.Dimensions]...)}})
 		}
 	}
 	sort.Slice(cs, func(i, j int) bool {

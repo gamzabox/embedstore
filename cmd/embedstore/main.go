@@ -112,7 +112,7 @@ func build(args []string) {
 	}
 	fmt.Printf("Built %s (%d items)\n", *output, len(d.Items))
 }
-func search(args []string) {
+func searchOld(args []string) {
 	f := flag.NewFlagSet("search", flag.ExitOnError)
 	path := f.String("file", "", "embed file")
 	query := f.String("query", "", "query")
