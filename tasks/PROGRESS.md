@@ -40,8 +40,11 @@
 | `git diff --check` | 통과 | |
 | `go test -race ./...` | 실행 불가 | ThreadSanitizer가 환경의 unsupported VMA range로 테스트 시작 전 종료 |
 | `go test -run=^$ -fuzz=FuzzParseDataset -fuzztime=10s .` | 통과 | 5개 seed 기준 약 8.2만 입력, 새 흥미 입력 75개 |
+| `go run ./cmd/embedstore validate --input samples/coffee-shop-knowledge.json` | 통과 | 16개 항목, 중복 ID 없음 |
 
 ## 최근 완료
+
+- `samples/coffee-shop-knowledge.json`의 16개 한국어 카페 FAQ와 sample 기반 README Quick Start(validate/build/search) 추가.
 
 - README에 Go 1.22 이상 기준의 라이브러리·CLI 빌드와 test/vet/diff/race 개발 검증 방법 추가.
 

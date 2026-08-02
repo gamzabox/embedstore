@@ -1,0 +1,86 @@
+{
+  "datasetName": "coffee-shop-knowledge",
+  "datasetVersion": "1.0.0",
+  "items": [
+    {
+      "id": "coffee.hours.weekday",
+      "content": "평일 매장 영업시간은 오전 8시부터 오후 9시까지입니다.",
+      "data": {"category": "hours", "answer": "평일 08:00~21:00", "tags": ["평일", "영업시간"]}
+    },
+    {
+      "id": "coffee.hours.weekend",
+      "content": "주말과 공휴일에는 오전 9시에 열고 오후 10시에 닫습니다.",
+      "data": {"category": "hours", "answer": "주말·공휴일 09:00~22:00", "tags": ["주말", "공휴일", "영업시간"]}
+    },
+    {
+      "id": "coffee.parking.available",
+      "content": "건물 지하 주차장을 이용할 수 있으며 카페 이용 고객은 두 시간 무료 주차가 가능합니다.",
+      "data": {"category": "parking", "answer": "지하 주차장, 2시간 무료", "tags": ["주차", "무료"]}
+    },
+    {
+      "id": "coffee.parking.bicycle",
+      "content": "매장 입구 옆에 자전거 거치대가 있으며 자전거 보관 서비스는 제공하지 않습니다.",
+      "data": {"category": "parking", "answer": "입구 옆 자전거 거치대", "tags": ["자전거", "거치대"]}
+    },
+    {
+      "id": "coffee.wifi",
+      "content": "매장 안에서는 무료 와이파이를 사용할 수 있고 비밀번호는 주문 영수증에 안내되어 있습니다.",
+      "data": {"category": "facility", "answer": "무료 와이파이, 영수증에서 비밀번호 확인", "tags": ["와이파이", "인터넷"]}
+    },
+    {
+      "id": "coffee.seats.group",
+      "content": "여섯 명 이상 단체석은 전화로 예약할 수 있으며 주말에는 최소 하루 전에 예약해야 합니다.",
+      "data": {"category": "reservation", "answer": "6명 이상 전화 예약, 주말 하루 전", "tags": ["단체", "예약", "좌석"]}
+    },
+    {
+      "id": "coffee.pet.policy",
+      "content": "이동장 또는 목줄을 사용한 반려견은 동반할 수 있지만 주방과 주문대에는 출입할 수 없습니다.",
+      "data": {"category": "policy", "answer": "목줄 또는 이동장 사용 시 반려견 동반 가능", "tags": ["반려견", "반려동물"]}
+    },
+    {
+      "id": "coffee.milk.oat",
+      "content": "라테와 카푸치노는 귀리 우유 또는 두유로 변경할 수 있으며 변경 비용은 500원입니다.",
+      "data": {"category": "menu", "answer": "귀리 우유·두유 변경 가능, 500원", "tags": ["우유", "두유", "귀리", "비건"]}
+    },
+    {
+      "id": "coffee.allergy.nuts",
+      "content": "견과류가 포함된 디저트는 별도 쇼케이스에 표시하지만 같은 주방 도구를 사용하므로 심한 알레르기는 직원에게 알려주세요.",
+      "data": {"category": "allergy", "answer": "견과류 표시, 교차 접촉 가능", "tags": ["알레르기", "견과류", "디저트"]}
+    },
+    {
+      "id": "coffee.decaf",
+      "content": "모든 에스프레소 음료는 디카페인 원두로 변경할 수 있고 추가 요금은 없습니다.",
+      "data": {"category": "menu", "answer": "디카페인 변경 무료", "tags": ["디카페인", "커피"]}
+    },
+    {
+      "id": "coffee.takeout.discount",
+      "content": "개인 텀블러를 가져오면 모든 제조 음료에서 300원을 할인해 드립니다.",
+      "data": {"category": "discount", "answer": "개인 텀블러 300원 할인", "tags": ["텀블러", "할인", "포장"]}
+    },
+    {
+      "id": "coffee.refund",
+      "content": "음료가 잘못 제조된 경우 영수증을 제시하면 같은 날에 재제조 또는 환불을 요청할 수 있습니다.",
+      "data": {"category": "refund", "answer": "당일 영수증으로 재제조 또는 환불", "tags": ["환불", "주문", "영수증"]}
+    },
+    {
+      "id": "coffee.beans",
+      "content": "매주 금요일에는 이번 주 로스팅 원두의 산지와 향미를 안내하며 200그램 단위로 원두를 구매할 수 있습니다.",
+      "data": {"category": "beans", "answer": "금요일 원두 안내, 200g 단위 판매", "tags": ["원두", "로스팅", "판매"]}
+    },
+    {
+      "id": "coffee.power",
+      "content": "창가 좌석과 큰 테이블에는 노트북 충전용 콘센트가 있고 회의실 좌석에는 콘센트가 없습니다.",
+      "data": {"category": "facility", "answer": "창가·큰 테이블 콘센트 제공", "tags": ["콘센트", "노트북", "충전"]}
+    },
+    {
+      "id": "coffee.delivery",
+      "content": "배달 주문은 매장 반경 3킬로미터 안에서 가능하며 최소 주문 금액은 12000원입니다.",
+      "data": {"category": "delivery", "answer": "3km 이내, 최소 주문 12,000원", "tags": ["배달", "최소주문"]}
+    },
+    {
+      "id": "coffee.accessibility",
+      "content": "정문에는 경사로가 있고 장애인 화장실은 건물 1층 공용 공간에 있습니다.",
+      "data": {"category": "accessibility", "answer": "정문 경사로, 1층 장애인 화장실", "tags": ["휠체어", "접근성", "화장실"]}
+    }
+  ]
+}

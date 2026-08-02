@@ -30,46 +30,28 @@ export OPENAI_API_KEY="..."
 
 ## 빠른 시작
 
-### 1. 입력 JSON 작성
+### 1. 포함된 카페 FAQ 샘플 확인
 
-입력은 데이터셋 정보와 `items` 배열을 가진 JSON 객체입니다.
+저장소에는 의미 검색을 바로 시험할 수 있는 한국어 카페 FAQ 데이터셋이 포함되어 있습니다.
 
-```json
-{
-  "datasetName": "app-knowledge",
-  "datasetVersion": "1.0.0",
-  "items": [
-    {
-      "id": "career.change.001",
-      "content": "이직과 직장 이동에 관한 질문",
-      "data": {
-        "topic": "career",
-        "intent": "job_change"
-      }
-    },
-    {
-      "content": "결혼 시기와 배우자 인연에 관한 질문",
-      "data": {
-        "topic": "relationship",
-        "intent": "marriage"
-      }
-    }
-  ]
-}
+```text
+samples/coffee-shop-knowledge.json
 ```
 
-`datasetName`, `datasetVersion`, `content`, `data`는 필수입니다. `id`는 선택 사항이며, 없으면 정규화된 `content`와 canonical JSON `data`를 바탕으로 결정적인 UUID v5를 생성합니다. 따라서 같은 입력은 같은 자동 ID를 얻습니다.
+샘플은 영업시간, 주차, 와이파이, 단체석, 반려동물, 우유 대체, 알레르기, 환불 등의 16개 항목과 검색 결과용 `category`, `answer`, `tags` metadata를 제공합니다. 입력 JSON은 `datasetName`, `datasetVersion`, `content`, `data`가 필요하며 `id`를 생략하면 content와 canonical JSON data를 바탕으로 결정적인 UUID v5가 생성됩니다.
 
-content 또는 data를 수정해도 같은 항목으로 취급해야 한다면 명시적 `id`를 사용하세요.
+### 2. 검증 및 임베딩 파일 빌드
 
-### 2. 검증 및 빌드
+저장소 루트에서 API key를 설정한 뒤 샘플을 검증하고 `.embed` 파일을 만듭니다. build는 원문 content를 OpenAI에 전송합니다.
 
 ```bash
-embedstore validate --input knowledge.json
+export OPENAI_API_KEY="..."
+
+embedstore validate --input samples/coffee-shop-knowledge.json
 
 embedstore build \
-  --input knowledge.json \
-  --output knowledge.embed \
+  --input samples/coffee-shop-knowledge.json \
+  --output coffee-shop.embed \
   --embedding openai/text-embedding-3-small
 ```
 
@@ -79,29 +61,17 @@ build는 입력 검증, OpenAI 임베딩 생성, L2 정규화, 파일 작성, �
 
 ```bash
 embedstore search \
-  --file knowledge.embed \
-  --query "올해 이직해도 될까요?"
+  --file coffee-shop.embed \
+  --query "반려견과 같이 방문할 수 있나요?"
 ```
 
-`search`는 파일 manifest의 `embedding`을 읽어 쿼리 임베딩에 사용할 provider/model을 자동으로 선택합니다.
-
-```text
-Query: 올해 이직해도 될까요?
-Embedding: openai/text-embedding-3-small
-Results: 2
-
-1. score=0.8734 id=career.change.001
-   data: {"topic":"career","intent":"job_change"}
-
-2. score=0.8412 id=relationship.marriage.001
-   data: {"topic":"relationship","intent":"marriage"}
-```
+검색 결과에는 `coffee.pet.policy` 항목과 해당 metadata가 높은 유사도로 표시됩니다. `주말에 늦게까지 하나요?`, `두유로 우유를 바꿀 수 있나요?`, `주차가 무료인가요?` 같은 쿼리도 시도해 보세요.
 
 ### 4. 파일 확인
 
 ```bash
-embedstore inspect --file knowledge.embed
-embedstore verify --file knowledge.embed
+embedstore inspect --file coffee-shop.embed
+embedstore verify --file coffee-shop.embed
 ```
 
 `inspect`는 빠른 manifest 조회이고, `verify`는 checksum·metadata·모든 벡터를 검사하는 전체 무결성 확인입니다.
