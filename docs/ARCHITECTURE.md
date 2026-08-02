@@ -221,4 +221,4 @@ OpenAI MVP의 기본 배치 정책은 요청당 최대 100개 항목 및 누적 
 
 Go module 버전, dataset 버전, file format 버전은 각각 독립적이다. 예를 들어 module `v0.3.0`이 file format `1`, dataset `1.7.0`을 읽을 수 있다.
 
-MVP 후에는 기존 `.embed` 병합 빌드, shell, 평가 도구, 평면 labels 필터, mmap, 양자화, 다른 provider, HNSW를 차례로 추가한다. 파일 포맷 버전 1은 v1.0.0 이전에도 호환성 정책을 명확히 유지하며, 호환되지 않는 변경은 새 포맷 버전으로만 도입한다.
+MVP 후에는 shell, 평가 도구, 평면 labels 필터, mmap, 양자화, 다른 provider, HNSW를 차례로 추가한다. 기존 `.embed` 병합 빌드는 v0.1 MVP에 포함한다. 파일 포맷 버전 1은 v1.0.0 이전에도 호환성 정책을 명확히 유지하며, 호환되지 않는 변경은 새 포맷 버전으로만 도입한다.

@@ -25,7 +25,10 @@
 - 파일 검증 오류에 path와 offset을 제공하는 `FileError`.
 - `LoadFile(path)`의 기존 정확한 함수 시그니처를 유지하고, 명시적 loader 옵션은 `LoadFileWithOptions(path, options)`로 분리. checksum 기본 검증과 `VerifyFile`의 무조건 검증을 회귀 테스트로 보장.
 - OpenAI Embedder: `openai/<model>` 파싱, API key 옵션·환경변수, dimensions, timeout/HTTP client, 응답 순서·차원 검증, transient retry 및 `httptest` 테스트.
-- CLI `inspect`: fast manifest summary plus `--list`/`--id`, text/JSON output, `--pretty`, and conflicting-option/missing-ID tests.
+- 입력 JSON parser/validator: strict 모드, UTF-8·크기·중복 검사, canonical JSON 및 결정적 UUID v5 자동 ID, validation summary.
+- build pipeline: 순차 배치·토큰 상한, vector 정규화, temp 파일 검증·원자적 rename, overwrite, content 전송 경고 및 `--reuse` 병합 재임베딩.
+- CLI `validate`, `build`, `search`, `inspect`, `verify`: text/JSON 출력과 오류 종료 계약의 end-to-end 테스트.
+- 파일 포맷 binary-layout/golden 성격의 계약 테스트, 손상 파일 테스트, loader fuzz 테스트, CLI/OpenAI HTTP fake 테스트.
 
 ## 검증 결과
 
@@ -39,22 +42,12 @@
 
 ## 남은 구현 범위
 
-- 입력 JSON parser/validator: strict 모드, UTF-8·크기·중복 검사,
-  canonical JSON 및 결정적 UUID v5 자동 ID.
-- OpenAI Embedder: API key 옵션/환경변수, dimensions, timeout, 순차 batch,
-  응답 순서 및 retry/backoff 테스트.
-- build pipeline: source checksum, vector embedding/정규화, temp 파일 검증,
-  atomic rename, overwrite 및 content 전송 경고.
-- `--reuse` 병합 build와 content 포함 여부 검증.
-- CLI: `validate`, `build`, `search`, `inspect`, `verify` 및 text/JSON 출력
-  계약, 0이 아닌 오류 종료.
-- file-format golden/corruption/fuzz tests와 CLI/OpenAI HTTP fake tests.
-- README 및 요구사항 문서의 실제 CLI/API와의 최종 대조 및 필요한 갱신.
+- input JSON parser fuzz 테스트.
+- 1천/1만/5만 항목과 512/1,024/1,536 차원의 검색 benchmark.
+- CI 품질 게이트(`gofmt`, test, vet, 지원 환경의 race, diff, staticcheck)와 GoReleaser·아카이브·checksum 릴리스 자동화.
+- v0.2 후속 기능: interactive shell과 evaluate 명령.
+- v0.3 이후: labels 필터, batch query, mmap, 추가 provider, ANN/HNSW 등.
 
 ## 설계 확인이 필요한 항목
 
-`README.md`와 상세 build 요구사항은 `--reuse`를 설명하지만,
-`docs/REQUIREMENTS.md`의 릴리스 표 및 architecture 확장 계획은 이를
-v0.2 범위로 분류한다. 현재 계획은 사용자 요청에 따라 문서에 명시된
-기능 전체를 구현 대상으로 유지한다. MVP만을 목표로 변경할 경우 같은
-변경에서 README와 요구사항의 범위 표기를 정합화해야 한다.
+`--reuse`는 v0.1 구현 범위에 포함되도록 README, Architecture, Requirements의 범위를 정합화했다. 남은 후속 기능은 구현을 시작할 때 각 릴리스 표와 함께 상태를 갱신한다.

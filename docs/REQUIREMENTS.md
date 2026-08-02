@@ -4,7 +4,7 @@
 
 `embedstore`는 JSON 콘텐츠를 OpenAI 임베딩으로 변환해 하나의 `.embed` 파일로 만들고, CLI와 Go 모듈에서 메모리 기반 의미 검색을 제공해야 한다.
 
-MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체 메모리 로드 및 완전 탐색이다. 기존 `.embed` 병합 build, 대화형 shell, evaluate, metadata 필터, mmap, 양자화 및 ANN 인덱스는 MVP 이후 범위다.
+MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체 메모리 로드, 완전 탐색 및 기존 `.embed` 병합 build다. 대화형 shell, evaluate, metadata 필터, mmap, 양자화 및 ANN 인덱스는 MVP 이후 범위다.
 
 ## 기능 요구사항
 
@@ -320,8 +320,8 @@ ErrInvalidQuery
 
 | 버전 | 범위 |
 | --- | --- |
-| `v0.1.0` | MVP: file format, memory search, OpenAI, validate/build/search/inspect/verify |
-| `v0.2.0` | 기존 `.embed` 병합 build, shell, evaluate |
+| `v0.1.0` | MVP: file format, memory search, OpenAI, validate/build/search/inspect/verify, 기존 `.embed` 병합 build |
+| `v0.2.0` | shell, evaluate |
 | `v0.3.0` | labels 기반 필터, batch query, benchmark command |
 | `v0.4.0` | mmap, 추가 embedding provider |
 | `v1.0.0` | 파일 포맷과 공개 API 안정화, 운영 검증 완료 |
