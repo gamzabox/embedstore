@@ -77,11 +77,16 @@ func NewMemoryStore(m Manifest, items []Item, vectors []float32) (*MemoryStore, 
 		clonedItems[i] = item
 		clonedItems[i].Data = append(json.RawMessage(nil), item.Data...)
 	}
+	seenIDs := make(map[string]struct{}, len(items))
 	vv := append([]float32(nil), vectors...)
 	for i := range items {
 		if items[i].ID == "" || !json.Valid(items[i].Data) {
 			return nil, fmt.Errorf("%w: invalid item", ErrInvalidFile)
 		}
+		if _, exists := seenIDs[items[i].ID]; exists {
+			return nil, fmt.Errorf("%w: duplicate item id %q", ErrInvalidFile, items[i].ID)
+		}
+		seenIDs[items[i].ID] = struct{}{}
 		if err := normalize(vv[i*m.Dimensions : (i+1)*m.Dimensions]); err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrInvalidFile, err)
 		}
