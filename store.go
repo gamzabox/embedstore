@@ -72,6 +72,11 @@ func NewMemoryStore(m Manifest, items []Item, vectors []float32) (*MemoryStore, 
 	if m.Dimensions <= 0 || m.ItemCount != len(items) || len(vectors) != len(items)*m.Dimensions {
 		return nil, fmt.Errorf("%w: invalid shape", ErrInvalidFile)
 	}
+	clonedItems := make([]Item, len(items))
+	for i, item := range items {
+		clonedItems[i] = item
+		clonedItems[i].Data = append(json.RawMessage(nil), item.Data...)
+	}
 	vv := append([]float32(nil), vectors...)
 	for i := range items {
 		if items[i].ID == "" || !json.Valid(items[i].Data) {
@@ -82,7 +87,7 @@ func NewMemoryStore(m Manifest, items []Item, vectors []float32) (*MemoryStore, 
 		}
 	}
 	m.Normalized = true
-	return &MemoryStore{m, append([]Item(nil), items...), vv}, nil
+	return &MemoryStore{m, clonedItems, vv}, nil
 }
 func (s *MemoryStore) Manifest() Manifest { return s.manifest }
 func (s *MemoryStore) Count() int         { return len(s.items) }

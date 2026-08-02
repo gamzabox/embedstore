@@ -58,6 +58,9 @@ func ParseDataset(r io.Reader, options ValidationOptions) (Dataset, error) {
 	if strings.TrimSpace(raw.DatasetName) == "" || strings.TrimSpace(raw.DatasetVersion) == "" {
 		return Dataset{}, fmt.Errorf("datasetName and datasetVersion are required")
 	}
+	if options.Strict && (raw.DatasetName != strings.TrimSpace(raw.DatasetName) || raw.DatasetVersion != strings.TrimSpace(raw.DatasetVersion)) {
+		return Dataset{}, fmt.Errorf("strict validation: datasetName and datasetVersion must not have surrounding whitespace")
+	}
 	if raw.Items == nil || len(raw.Items) == 0 {
 		return Dataset{}, fmt.Errorf("items must be a non-empty array")
 	}
@@ -68,6 +71,9 @@ func ParseDataset(r io.Reader, options ValidationOptions) (Dataset, error) {
 	seen := map[string]struct{}{}
 	for i, source := range raw.Items {
 		content := strings.TrimSpace(source.Content)
+		if options.Strict && normalizeContent(source.Content) != source.Content {
+			return Dataset{}, fmt.Errorf("strict validation: item %d content must not require whitespace normalization", i)
+		}
 		if content == "" {
 			return Dataset{}, fmt.Errorf("item %d: content is required", i)
 		}
@@ -89,6 +95,9 @@ func ParseDataset(r io.Reader, options ValidationOptions) (Dataset, error) {
 		data, err := json.Marshal(value)
 		if err != nil {
 			return Dataset{}, fmt.Errorf("item %d: unsupported data", i)
+		}
+		if options.Strict && source.ID != "" && strings.TrimSpace(source.ID) != source.ID {
+			return Dataset{}, fmt.Errorf("strict validation: item %d id must not have surrounding whitespace", i)
 		}
 		id := source.ID
 		if id == "" {
