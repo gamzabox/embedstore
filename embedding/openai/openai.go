@@ -35,7 +35,11 @@ func WithRetryDelay(d time.Duration) Option { return func(c *Client) { c.retryDe
 func WithModel(m string) Option             { return func(c *Client) { c.model = m } }
 func WithHTTPClient(h *http.Client) Option  { return func(c *Client) { c.httpClient = h } }
 func New(opts ...Option) *Client {
-	c := &Client{apiKey: os.Getenv("OPENAI_API_KEY"), baseURL: "https://api.openai.com/v1", model: "text-embedding-3-small", maxRetries: 5, retryDelay: 200 * time.Millisecond, httpClient: &http.Client{Timeout: 30 * time.Second}}
+	baseURL := os.Getenv("OPENAI_BASE_URL")
+	if baseURL == "" {
+		baseURL = "https://api.openai.com/v1"
+	}
+	c := &Client{apiKey: os.Getenv("OPENAI_API_KEY"), baseURL: strings.TrimRight(baseURL, "/"), model: "text-embedding-3-small", maxRetries: 5, retryDelay: 200 * time.Millisecond, httpClient: &http.Client{Timeout: 30 * time.Second}}
 	for _, o := range opts {
 		o(c)
 	}

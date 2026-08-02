@@ -26,6 +26,8 @@ OpenAI를 사용할 경우 API key를 설정합니다.
 export OPENAI_API_KEY="..."
 ```
 
+테스트 또는 OpenAI-compatible endpoint를 사용할 때는 선택적으로 `OPENAI_BASE_URL`을 설정할 수 있습니다. 기본값은 `https://api.openai.com/v1`입니다.
+
 ## 빠른 시작
 
 ### 1. 입력 JSON 작성
