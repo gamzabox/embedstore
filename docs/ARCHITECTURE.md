@@ -124,11 +124,13 @@ build는 입력 JSON의 항목과 reuse 파일의 항목을 ID 기준으로 병�
 ```text
 magic bytes | format version | header length
 manifest
-metadata index
-metadata JSON blocks
+sequential item records (metadata length + metadata JSON)
 contiguous float32 vectors
 checksum
 ```
+
+Version 1 uses little-endian encoding for fixed-width fields. After the four-byte `EMBD` magic, the header is a `uint16` format version and a `uint32` manifest length followed by manifest JSON. It then stores exactly `itemCount` sequential item records, each a little-endian `uint32` metadata length followed by that item JSON; v1 has no metadata index. The vector region follows immediately and contains `itemCount * dimensions` little-endian IEEE-754 `float32` values in item order. The final 32 bytes are the SHA-256 checksum of every preceding byte.
+
 
 Manifest에는 최소한 다음을 기록한다.
 

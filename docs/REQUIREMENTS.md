@@ -274,7 +274,7 @@ embedstore verify \
 ## 파일 포맷 요구사항
 
 - 파일 확장자는 `.embed`를 사용해야 한다.
-- 파일은 magic bytes, file format version, header length, manifest, metadata index, metadata JSON, `float32` vectors, checksum을 포함하는 단일 파일이어야 한다.
+- 파일은 magic bytes, file format version, header length, manifest, 저장 순서의 length-prefixed metadata JSON records, `float32` vectors, checksum을 포함하는 단일 파일이어야 한다. MVP v1에는 metadata index를 두지 않는다.
 - MVP의 vector type은 `float32`만 지원해야 한다.
 - 저장 벡터와 쿼리 벡터는 L2 정규화해야 한다.
 - manifest에는 format version, dataset name/version, `<provider>/<model>` 형식의 embedding, dimensions, vector type, normalized, item count, created at, source checksum, content 포함 여부를 기록해야 한다.

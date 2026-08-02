@@ -15,6 +15,15 @@ var fileMagic = [4]byte{'E', 'M', 'B', 'D'}
 
 const fileVersion uint16 = 1
 
+const (
+	maxEmbedFileBytes    int64 = 1 << 30
+	maxManifestBytes           = 16 << 20
+	maxItemMetadataBytes       = 16 << 20
+	maxItemCount               = 1_000_000
+	maxVectorDimensions        = 1 << 20
+	maxVectorValues            = 64 << 20
+)
+
 // WriteFile writes a complete v1 file. Vectors must be normalized and finite.
 func WriteFile(path string, manifest Manifest, items []Item, vectors []float32) error {
 	if manifest.FormatVersion == 0 {
@@ -60,14 +69,14 @@ func WriteFile(path string, manifest Manifest, items []Item, vectors []float32) 
 
 // LoadFile verifies a file completely before returning an immutable memory store.
 func LoadFile(path string) (Store, error) {
-	data, err := os.ReadFile(path)
+	data, err := readEmbedFile(path)
 	if err != nil {
 		return nil, err
 	}
 	return loadBytes(path, data)
 }
 func VerifyFile(path string) (Manifest, error) {
-	data, err := os.ReadFile(path)
+	data, err := readEmbedFile(path)
 	if err != nil {
 		return Manifest{}, err
 	}
@@ -77,6 +86,17 @@ func VerifyFile(path string) (Manifest, error) {
 	}
 	return s.Manifest(), nil
 }
+func readEmbedFile(path string) ([]byte, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	if info.Size() < 0 || info.Size() > maxEmbedFileBytes {
+		return nil, &FileError{Path: path, Offset: 0, Err: ErrInvalidFile}
+	}
+	return os.ReadFile(path)
+}
+
 func loadBytes(path string, data []byte) (*MemoryStore, error) {
 	fail := func(offset int, err error) (*MemoryStore, error) { return nil, &FileError{path, int64(offset), err} }
 	if len(data) < 4+2+4+32 {
@@ -96,7 +116,7 @@ func loadBytes(path string, data []byte) (*MemoryStore, error) {
 	off := 6
 	n := int(binary.LittleEndian.Uint32(data[off : off+4]))
 	off += 4
-	if n < 2 || n > len(data)-off-32 {
+	if n < 2 || n > maxManifestBytes || n > len(data)-off-32 {
 		return fail(off, ErrInvalidFile)
 	}
 	var m Manifest
@@ -104,7 +124,7 @@ func loadBytes(path string, data []byte) (*MemoryStore, error) {
 		return fail(off, fmt.Errorf("%w: manifest: %v", ErrInvalidFile, err))
 	}
 	off += n
-	if m.FormatVersion != int(fileVersion) || m.Dimensions <= 0 || m.ItemCount < 0 || m.ItemCount > 1_000_000 || m.VectorType != "float32" || !m.Normalized {
+	if m.FormatVersion != int(fileVersion) || m.Dimensions <= 0 || m.Dimensions > maxVectorDimensions || m.ItemCount < 0 || m.ItemCount > maxItemCount || m.VectorType != "float32" || !m.Normalized {
 		return fail(off, ErrInvalidFile)
 	}
 	items := make([]Item, m.ItemCount)
@@ -114,7 +134,7 @@ func loadBytes(path string, data []byte) (*MemoryStore, error) {
 		}
 		l := int(binary.LittleEndian.Uint32(data[off : off+4]))
 		off += 4
-		if l < 2 || l > len(data)-off-32 {
+		if l < 2 || l > maxItemMetadataBytes || l > len(data)-off-32 {
 			return fail(off, ErrInvalidFile)
 		}
 		if err := json.Unmarshal(data[off:off+l], &items[i]); err != nil {
@@ -124,6 +144,9 @@ func loadBytes(path string, data []byte) (*MemoryStore, error) {
 			return fail(off, ErrInvalidFile)
 		}
 		off += l
+	}
+	if m.ItemCount != 0 && m.Dimensions > maxVectorValues/m.ItemCount {
+		return fail(off, ErrInvalidFile)
 	}
 	count := m.ItemCount * m.Dimensions
 	if count < 0 || count > (len(data)-off-32)/4 || off+count*4 != len(data)-32 {
