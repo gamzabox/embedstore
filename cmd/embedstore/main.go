@@ -32,7 +32,7 @@ func main() {
 		die("unknown command")
 	}
 }
-func validate(args []string) {
+func validateOld(args []string) {
 	f := flag.NewFlagSet("validate", flag.ExitOnError)
 	input := f.String("input", "", "input JSON")
 	max := f.Int("max-content-bytes", 0, "maximum content bytes")

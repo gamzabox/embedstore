@@ -23,6 +23,19 @@ type Dataset struct {
 }
 type ValidationSummary struct{ ItemCount, DuplicateIDs, EmptyContents, InvalidRecords, EstimatedTokens int }
 
+// ValidateDataset parses input and returns the summary emitted by the CLI.
+func ValidateDataset(r io.Reader, options ValidationOptions) (Dataset, ValidationSummary, error) {
+	dataset, err := ParseDataset(r, options)
+	if err != nil {
+		return Dataset{}, ValidationSummary{}, err
+	}
+	summary := ValidationSummary{ItemCount: len(dataset.Items)}
+	for _, item := range dataset.Items {
+		summary.EstimatedTokens += estimateTokens(item.Content)
+	}
+	return dataset, summary, nil
+}
+
 // ParseDataset validates the JSON input and makes data and generated IDs deterministic.
 func ParseDataset(r io.Reader, options ValidationOptions) (Dataset, error) {
 	decoder := json.NewDecoder(r)

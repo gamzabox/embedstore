@@ -194,9 +194,9 @@ func (e *Engine) Search(c context.Context, q string, o SearchOptions) ([]SearchR
 	}
 	return e.store.SearchVector(c, v[0], o)
 }
-func DecodeData[T any](data json.RawMessage) (T, error) {
+func DecodeData[T any](result SearchResult) (T, error) {
 	var v T
-	err := json.Unmarshal(data, &v)
+	err := json.Unmarshal(result.Data, &v)
 	return v, err
 }
 
