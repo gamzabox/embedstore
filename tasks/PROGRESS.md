@@ -41,8 +41,11 @@
 | `go test -race ./...` | 실행 불가 | ThreadSanitizer가 환경의 unsupported VMA range로 테스트 시작 전 종료 |
 | `go test -run=^$ -fuzz=FuzzParseDataset -fuzztime=10s .` | 통과 | 5개 seed 기준 약 8.2만 입력, 새 흥미 입력 75개 |
 | `go run ./cmd/embedstore validate --input samples/coffee-shop-knowledge.json` | 통과 | 16개 항목, 중복 ID 없음 |
+| `GOTOOLCHAIN=go1.22.12+auto go run honnef.co/go/tools/cmd/staticcheck@v0.5.1 ./...` | 통과 | CI 고정 Staticcheck 2024.1.1과 동일한 검사 |
 
 ## 최근 완료
+
+- GitHub Actions staticcheck 실패 수정: 사용되지 않는 legacy CLI 구현을 제거하고, `BuildOptions.IncludeContent`의 무효 대입 및 input item slice의 불필요한 nil 검사를 단순화. CI와 동일한 Go 1.22.12 + Staticcheck 2024.1.1 검사를 통과.
 
 - Go 모듈 경로를 `github.com/gamzabox/embedstore`로 이전: `go.mod`, 모든 내부 import와 README·Architecture 예제를 실제 저장소 경로로 정합화. GitHub Actions·GoReleaser 설정과 LICENSE를 점검했으며 오래된 경로는 작업 계획의 역사적 설명을 제외하고 남지 않았다. 기존 소비자는 import와 `go get` 경로를 새 모듈 경로로 바꿔야 한다. `gofmt`, `go test ./...`, `go vet ./...`, `git diff --check` 통과; `-race`는 환경의 ThreadSanitizer VMA 제한으로 실행하지 못했다.
 

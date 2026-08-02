@@ -42,11 +42,6 @@ func BuildFile(ctx context.Context, dataset Dataset, output string, options Buil
 		return fmt.Errorf("batch size must be positive")
 	}
 	include := options.IncludeContent
-	if !options.IncludeContent {
-		include = false
-	} else {
-		include = true
-	}
 	items := append([]Item(nil), dataset.Items...)
 	flat := []float32{}
 	dimension := 0

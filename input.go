@@ -61,7 +61,7 @@ func ParseDataset(r io.Reader, options ValidationOptions) (Dataset, error) {
 	if options.Strict && (raw.DatasetName != strings.TrimSpace(raw.DatasetName) || raw.DatasetVersion != strings.TrimSpace(raw.DatasetVersion)) {
 		return Dataset{}, fmt.Errorf("strict validation: datasetName and datasetVersion must not have surrounding whitespace")
 	}
-	if raw.Items == nil || len(raw.Items) == 0 {
+	if len(raw.Items) == 0 {
 		return Dataset{}, fmt.Errorf("items must be a non-empty array")
 	}
 	if options.MaxItems > 0 && len(raw.Items) > options.MaxItems {
