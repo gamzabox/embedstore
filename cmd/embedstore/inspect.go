@@ -6,7 +6,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/embedstore/embedstore"
+	"github.com/gamzabox/embedstore"
 )
 
 func inspect(args []string) {

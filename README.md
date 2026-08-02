@@ -17,7 +17,7 @@ knowledge.json
 Go 모듈과 CLI는 같은 repository에서 배포됩니다.
 
 ```bash
-go install github.com/<organization>/embedstore/cmd/embedstore@latest
+go install github.com/gamzabox/embedstore/cmd/embedstore@latest
 ```
 
 OpenAI를 사용할 경우 API key를 설정합니다.
@@ -238,7 +238,7 @@ embedstore verify --file knowledge.embed
 ### 설치
 
 ```bash
-go get github.com/<organization>/embedstore
+go get github.com/gamzabox/embedstore
 ```
 
 ### 문자열 검색
@@ -253,8 +253,8 @@ import (
     "log"
     "os"
 
-    "github.com/<organization>/embedstore"
-    openaiembedding "github.com/<organization>/embedstore/embedding/openai"
+    "github.com/gamzabox/embedstore"
+    openaiembedding "github.com/gamzabox/embedstore/embedding/openai"
 )
 
 type Metadata struct {

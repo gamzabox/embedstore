@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/embedstore/embedstore"
+	"github.com/gamzabox/embedstore"
 )
 
 func validate(args []string) {

@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/embedstore/embedstore"
-	openai "github.com/embedstore/embedstore/embedding/openai"
+	"github.com/gamzabox/embedstore"
+	openai "github.com/gamzabox/embedstore/embedding/openai"
 )
 
 func build(args []string) {

@@ -13,7 +13,7 @@
 
 ## 완료된 구현
 
-- Go module 초기화 (`github.com/embedstore/embedstore`).
+- Go module 초기화 (`github.com/gamzabox/embedstore`).
 - 루트 공개 API: `Manifest`, `Item`, `Store`, `Embedder`, `SearchOptions`,
   `SearchResult`, `Engine`, `DecodeData` 및 공개 sentinel 오류.
 - 연속 `float32` 배열을 사용하는 읽기 전용 `MemoryStore`.
@@ -43,6 +43,8 @@
 | `go run ./cmd/embedstore validate --input samples/coffee-shop-knowledge.json` | 통과 | 16개 항목, 중복 ID 없음 |
 
 ## 최근 완료
+
+- Go 모듈 경로를 `github.com/gamzabox/embedstore`로 이전: `go.mod`, 모든 내부 import와 README·Architecture 예제를 실제 저장소 경로로 정합화. GitHub Actions·GoReleaser 설정과 LICENSE를 점검했으며 오래된 경로는 작업 계획의 역사적 설명을 제외하고 남지 않았다. 기존 소비자는 import와 `go get` 경로를 새 모듈 경로로 바꿔야 한다. `gofmt`, `go test ./...`, `go vet ./...`, `git diff --check` 통과; `-race`는 환경의 ThreadSanitizer VMA 제한으로 실행하지 못했다.
 
 - `samples/coffee-shop-knowledge.json`의 16개 한국어 카페 FAQ와 sample 기반 README Quick Start(validate/build/search) 추가.
 

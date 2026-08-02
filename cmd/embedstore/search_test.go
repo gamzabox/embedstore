@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/embedstore/embedstore"
+	"github.com/gamzabox/embedstore"
 )
 
 func TestSearchOutputJSONOptions(t *testing.T) {

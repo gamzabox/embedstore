@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/embedstore/embedstore"
+	"github.com/gamzabox/embedstore"
 )
 
 func TestBuildCommandReuseMergesItems(t *testing.T) {

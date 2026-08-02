@@ -22,7 +22,7 @@ source.json
 | --- | --- |
 | 프로젝트 / 패키지 | `embedstore` |
 | CLI 바이너리 | `embedstore` |
-| Go module | `github.com/<organization>/embedstore` |
+| Go module | `github.com/gamzabox/embedstore` |
 | 벡터 파일 | `*.embed` |
 
 초기 버전은 수천~수만 개 항목을 대상으로 한 완전 탐색을 지원한다. HNSW, 메모리 매핑, 양자화, 다중 provider는 확장 범위다.
