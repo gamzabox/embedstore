@@ -142,7 +142,7 @@ func loadBytes(path string, data []byte) (*MemoryStore, error) {
 			}
 			sq += float64(x) * float64(x)
 		}
-		if sq == 0 {
+		if sq == 0 || math.Abs(math.Sqrt(sq)-1) > 1e-3 {
 			return fail(off, ErrInvalidFile)
 		}
 	}
