@@ -28,7 +28,7 @@
 - 입력 JSON parser/validator: strict 모드, UTF-8·크기·중복 검사, canonical JSON 및 결정적 UUID v5 자동 ID, validation summary.
 - build pipeline: 순차 배치·토큰 상한, vector 정규화, temp 파일 검증·원자적 rename, overwrite, content 전송 경고 및 `--reuse` 병합 재임베딩.
 - CLI `validate`, `build`, `search`, `inspect`, `verify`: text/JSON 출력과 오류 종료 계약의 end-to-end 테스트.
-- 파일 포맷 binary-layout/golden 성격의 계약 테스트, 손상 파일 테스트, loader fuzz 테스트, CLI/OpenAI HTTP fake 테스트.
+- 파일 포맷 binary-layout/golden 성격의 계약 테스트, 손상 파일 테스트, loader·input parser fuzz 테스트, CLI/OpenAI HTTP fake 테스트.
 
 ## 검증 결과
 
@@ -39,10 +39,10 @@
 | `go vet ./...` | 통과 | |
 | `git diff --check` | 통과 | |
 | `go test -race ./...` | 실행 불가 | ThreadSanitizer가 환경의 unsupported VMA range로 테스트 시작 전 종료 |
+| `go test -run=^$ -fuzz=FuzzParseDataset -fuzztime=10s .` | 통과 | 5개 seed 기준 약 8.2만 입력, 새 흥미 입력 75개 |
 
 ## 남은 구현 범위
 
-- input JSON parser fuzz 테스트.
 - 1천/1만/5만 항목과 512/1,024/1,536 차원의 검색 benchmark.
 - CI 품질 게이트(`gofmt`, test, vet, 지원 환경의 race, diff, staticcheck)와 GoReleaser·아카이브·checksum 릴리스 자동화.
 - v0.2 후속 기능: interactive shell과 evaluate 명령.
