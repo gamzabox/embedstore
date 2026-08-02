@@ -49,7 +49,7 @@ func validate(args []string) {
 	}
 	fmt.Printf("Validation successful\nItems: %d\n", len(d.Items))
 }
-func build(args []string) {
+func buildOld(args []string) {
 	f := flag.NewFlagSet("build", flag.ExitOnError)
 	input := f.String("input", "", "input JSON")
 	output := f.String("output", "", "output embed")

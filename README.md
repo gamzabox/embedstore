@@ -138,14 +138,14 @@ embedstore build \
 | `--embedding <provider>/<model>` | 필수 | 임베딩 식별자. MVP는 `openai` provider 지원 |
 | `--dimensions <n>` | 모델 기본값 | provider에 요청할 출력 벡터 차원. 실제 API 응답 차원이 manifest에 기록됨 |
 | `--batch-size <n>` | `100` | 요청 하나에 넣을 최대 항목 수 |
-| `--max-batch-tokens <n>` | `100000` | 요청 하나의 누적 입력 토큰 상한 |
+| `--max-batch-tokens <n>` | `100000` | 요청 하나의 누적 **추정** 입력 토큰 상한. `0` 이하는 토큰 상한 비활성화 |
 | `--timeout <duration>` | `30s` | OpenAI 요청 timeout |
-| `--max-retries <n>` | `5` | 일시적 API/네트워크 오류의 최대 재시도 횟수 |
+| `--max-retries <n>` | `5` | 일시적 API/네트워크 오류의 최대 재시도 횟수(최초 요청 제외) |
 | `--include-content=<bool>` | `true` | output 파일에 원본 content 저장 여부 |
 | `--reuse <path>` | 미설정 | 병합할 기존 `.embed` 파일 |
 | `--overwrite` | `false` | 기존 output 파일의 원자적 교체 허용 |
 
-배치는 순차적으로 처리합니다. `batch-size` 또는 `max-batch-tokens` 중 먼저 상한에 도달하면 다음 요청으로 분할합니다.
+배치는 순차적으로 처리합니다. 항목 수(`batch-size`) 또는 content의 보수적 추정 토큰 수(`max-batch-tokens`) 중 먼저 상한에 도달하면 다음 요청으로 분할합니다. `--max-batch-tokens=0`은 토큰 상한을 비활성화합니다.
 
 `dimensions`는 파일 벡터를 사후 변환하는 기능이 아닙니다. 지원되는 모델과 값일 때만 provider에 전달되며, 미설정 시 모델 기본 차원이 사용됩니다.
 

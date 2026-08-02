@@ -15,6 +15,7 @@ import (
 type BuildOptions struct {
 	Embedder       Embedder
 	BatchSize      int
+	MaxBatchTokens int
 	Overwrite      bool
 	IncludeContent bool
 }
@@ -49,10 +50,16 @@ func BuildFile(ctx context.Context, dataset Dataset, output string, options Buil
 	items := append([]Item(nil), dataset.Items...)
 	flat := []float32{}
 	dimension := 0
-	for start := 0; start < len(items); start += batch {
-		end := start + batch
-		if end > len(items) {
-			end = len(items)
+	for start := 0; start < len(items); {
+		end := start
+		tokens := 0
+		for end < len(items) && end-start < batch {
+			estimated := estimateTokens(items[end].Content)
+			if options.MaxBatchTokens > 0 && end > start && tokens+estimated > options.MaxBatchTokens {
+				break
+			}
+			tokens += estimated
+			end++
 		}
 		contents := make([]string, end-start)
 		for i := start; i < end; i++ {
@@ -77,6 +84,7 @@ func BuildFile(ctx context.Context, dataset Dataset, output string, options Buil
 			}
 			flat = append(flat, v...)
 		}
+		start = end
 	}
 	if options.Embedder.Dimensions() > 0 && options.Embedder.Dimensions() != dimension {
 		return fmt.Errorf("%w: embedder declares %d, returned %d", ErrDimensionMismatch, options.Embedder.Dimensions(), dimension)
@@ -108,3 +116,5 @@ func BuildFile(ctx context.Context, dataset Dataset, output string, options Buil
 	}
 	return os.Rename(tmpPath, output)
 }
+
+func estimateTokens(content string) int { return len([]rune(content))/4 + 1 }

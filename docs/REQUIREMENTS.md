@@ -27,12 +27,12 @@ MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체
 - `embedstore build`는 `--input`, `--output`, `--embedding`을 받아 `.embed` 파일을 생성해야 한다. `datasetName`과 `datasetVersion`은 입력 JSON에서 읽는다.
 - build는 입력 검증, 임베딩 생성, 차원 확인, 정규화, 파일 작성, 파일 검증의 순서로 수행해야 한다.
 - 임베딩은 배치 요청으로 순차 전송해야 한다.
-- OpenAI 기본 배치 상한은 요청당 최대 100개 항목과 누적 100,000 입력 토큰이어야 한다. 두 상한 중 먼저 도달하는 지점에서 배치를 분할해야 한다.
+- OpenAI 기본 배치 상한은 요청당 최대 100개 항목과 누적 100,000 **추정** 입력 토큰이어야 한다. 두 상한 중 먼저 도달하는 지점에서 순차 배치를 분할해야 한다.
 - MVP의 기본 embedding provider는 OpenAI이며 `OPENAI_API_KEY`를 지원해야 한다.
 - `--embedding`은 필수이며 `<provider>/<model>` 형식이어야 한다. MVP의 유효 provider는 `openai`다. 예: `--embedding openai/text-embedding-3-small`.
 - `--dimensions`, `--batch-size`, `--max-batch-tokens`, `--overwrite`, `--reuse`, `--include-content`, `--timeout`, `--max-retries` 옵션을 제공해야 한다.
-- `--batch-size`는 요청당 최대 항목 수이며 기본값은 100이다. `--max-batch-tokens`는 요청당 누적 입력 토큰 상한이며 기본값은 100,000이다.
-- `--timeout`의 기본값은 30초이고, `--max-retries`의 기본값은 5다.
+- `--batch-size`는 요청당 최대 항목 수이며 기본값은 100이다. `--max-batch-tokens`는 요청당 누적 **추정** 입력 토큰 상한이며 기본값은 100,000이다. 값이 0 이하면 토큰 상한을 적용하지 않는다.
+- `--timeout`의 기본값은 30초이고, `--max-retries`의 기본값은 5다. `--max-retries`는 최초 요청 이후 일시적 오류에 적용할 재시도 횟수다.
 - build의 `--include-content` 기본값은 `true`다. content를 포함한 파일은 이후 `--reuse` 병합 build의 원본으로 사용할 수 있다.
 - 저장 벡터와 쿼리 벡터는 항상 L2 정규화해야 하며, 이를 비활성화하는 CLI 옵션을 제공해서는 안 된다.
 - 출력 경로에 파일이 이미 있으면 기본적으로 build를 실패시켜야 한다. `--overwrite`를 명시한 경우에만 검증을 마친 임시 파일을 원자적으로 기존 파일과 교체해야 한다.
