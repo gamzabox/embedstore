@@ -295,10 +295,8 @@ type Metadata struct {
 func main() {
     ctx := context.Background()
 
-    store, err := embedstore.LoadFile(
-        "knowledge.embed",
-        embedstore.WithChecksumVerification(true),
-    )
+    store, err := embedstore.LoadFile("knowledge.embed")
+
     if err != nil {
         log.Fatal(err)
     }
@@ -331,6 +329,8 @@ func main() {
 }
 ```
 
+기본 `LoadFile(path)`은 checksum을 항상 검증합니다. 신뢰할 수 있는 로컬 진단에서만 `LoadFileWithOptions(path, LoadOptions{VerifyChecksum: &disabled})`처럼 checksum 검사만 생략할 수 있으며, 이 경우에도 파일 구조와 metadata/vector 검증은 그대로 수행됩니다.
+
 `NewEngine`은 store manifest의 embedding/dimensions와 embedder가 호환되는지 기본적으로 검사합니다. provider 또는 모델이 다르면 `ErrModelMismatch`를 반환합니다.
 
 ### 이미 가진 벡터로 검색
@@ -347,8 +347,9 @@ results, err := store.SearchVector(ctx, queryVector, embedstore.SearchOptions{
 
 | API | 주요 파라미터 | 설명 |
 | --- | --- | --- |
-| `LoadFile(path, options...)` | `path`: `.embed` 경로 | 파일을 메모리에 로드 |
-| `WithChecksumVerification(bool)` | `true`면 checksum 검증 | 파일 로드 시 checksum 검사 여부 설정 |
+| `LoadFile(path)` | `path`: `.embed` 경로 | checksum을 검증하며 파일을 메모리에 로드 |
+| `LoadFileWithOptions(path, options)` | `path`, `LoadOptions` | 명시적 loader 옵션으로 파일을 메모리에 로드 |
+| `LoadOptions` | `VerifyChecksum *bool`, `MemoryMode` | checksum은 nil/기본값에서 검증하며, `MemoryModeLoad`만 MVP에서 지원 |
 | `NewEngine(store, embedder)` | `store`, `embedder` | 문자열 검색용 Engine 생성 및 호환성 검사 |
 | `Engine.Search(ctx, query, options)` | `query`: 검색 문자열 | embedder로 쿼리를 임베딩한 뒤 검색 |
 | `Store.SearchVector(ctx, vector, options)` | `vector`: 쿼리 벡터 | 이미 임베딩된 벡터로 검색 |

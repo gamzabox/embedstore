@@ -61,7 +61,8 @@ root package         Store, MemoryStore, Engine, 공개 타입과 오류
 
 ### 검색
 
-1. `LoadFile`은 manifest, metadata, 벡터를 검증한 후 메모리에 적재한다.
+1. `LoadFile(path)`은 manifest, metadata, 벡터를 검증한 후 메모리에 적재한다. `LoadFileWithOptions(path, options)`는 명시적 loader 옵션이 필요한 경우에 사용한다.
+   기본 호출은 checksum 검증을 수행한다. `LoadOptions.VerifyChecksum`이 nil이면 검증하며, false는 checksum 비교만 생략한다. MVP는 빈 memory mode 또는 `MemoryModeLoad`만 허용하고 다른 mode는 오류다. `VerifyFile`은 옵션과 무관하게 항상 checksum을 검증한다.
 2. CLI search는 manifest의 embedding으로 provider client를 선택하고 문자열 쿼리를 임베딩한다. Go `Engine.Search`는 제공받은 `Embedder`로 쿼리를 임베딩한다.
 3. 쿼리 벡터를 정규화하고 파일 manifest의 임베딩 식별자 및 차원과 호환되는지 확인한다.
 4. `MemoryStore.SearchVector`가 모든 저장 벡터와 내적을 계산한다.

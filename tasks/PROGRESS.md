@@ -23,6 +23,7 @@
 - 초기 v1 `.embed` writer/reader/inspect/verify 기반: magic, 버전,
   manifest, item metadata, float32 vectors, SHA-256 checksum 검사.
 - 파일 검증 오류에 path와 offset을 제공하는 `FileError`.
+- `LoadFile(path)`의 기존 정확한 함수 시그니처를 유지하고, 명시적 loader 옵션은 `LoadFileWithOptions(path, options)`로 분리. checksum 기본 검증과 `VerifyFile`의 무조건 검증을 회귀 테스트로 보장.
 - OpenAI Embedder: `openai/<model>` 파싱, API key 옵션·환경변수, dimensions, timeout/HTTP client, 응답 순서·차원 검증, transient retry 및 `httptest` 테스트.
 - CLI `inspect`: fast manifest summary plus `--list`/`--id`, text/JSON output, `--pretty`, and conflicting-option/missing-ID tests.
 

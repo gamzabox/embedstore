@@ -263,7 +263,7 @@ embedstore verify \
 ### Go 모듈
 
 - 루트 패키지는 `LoadFile`, `NewEngine`, `Search`, `SearchVector`, `Manifest`, `DecodeData`를 제공해야 한다.
-- `LoadFile`은 checksum 검증과 memory mode 설정 옵션을 받아야 한다. MVP의 memory mode는 일반 메모리 로드다.
+- `LoadFile(path)`은 안정적인 no-options entry point이며 checksum 검증을 기본적으로 활성화한다. 명시적 옵션은 `LoadFileWithOptions(path, options)`에서 사용한다. `LoadOptions.VerifyChecksum`이 nil이면 활성화되고 false는 checksum 비교만 생략하며, 구조·metadata·vector 검증은 계속해야 한다. MVP memory mode는 빈 값 또는 `MemoryModeLoad`인 일반 메모리 로드만 지원하고 다른 값은 오류다. `VerifyFile`은 항상 checksum을 검증한다.
 - `Store`는 `Manifest()`, `Count()`, `SearchVector(...)`, `Close()`를 제공해야 한다.
 - `Embedder`는 배치 `Embed`, `Embedding`, `Dimensions`를 제공해야 한다.
 - `SearchOptions`는 최소한 `Limit`, `MinScore`를 포함해야 한다. Go API에서 `Limit`이 0이면 기본값 5를 적용해야 한다.

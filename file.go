@@ -15,6 +15,15 @@ var fileMagic = [4]byte{'E', 'M', 'B', 'D'}
 
 const fileVersion uint16 = 1
 
+type MemoryMode string
+
+const MemoryModeLoad MemoryMode = "load"
+
+type LoadOptions struct {
+	VerifyChecksum *bool
+	MemoryMode     MemoryMode
+}
+
 const (
 	maxEmbedFileBytes    int64 = 1 << 30
 	maxManifestBytes           = 16 << 20
@@ -69,12 +78,32 @@ func WriteFile(path string, manifest Manifest, items []Item, vectors []float32) 
 
 // LoadFile verifies a file completely before returning an immutable memory store.
 func LoadFile(path string) (Store, error) {
+	return LoadFileWithOptions(path, LoadOptions{})
+}
+
+// LoadFileWithOptions verifies a file with explicit loading options.
+func LoadFileWithOptions(path string, option LoadOptions) (Store, error) {
+	option, err := resolveLoadOptions(option)
+	if err != nil {
+		return nil, err
+	}
 	data, err := readEmbedFile(path)
 	if err != nil {
 		return nil, err
 	}
-	return loadBytes(path, data)
+	verify := true
+	if option.VerifyChecksum != nil {
+		verify = *option.VerifyChecksum
+	}
+	return loadBytes(path, data, verify)
 }
+func resolveLoadOptions(option LoadOptions) (LoadOptions, error) {
+	if option.MemoryMode != "" && option.MemoryMode != MemoryModeLoad {
+		return LoadOptions{}, fmt.Errorf("%w: unsupported memory mode %q", ErrInvalidQuery, option.MemoryMode)
+	}
+	return option, nil
+}
+
 func VerifyFile(path string) (Manifest, error) {
 	data, err := readEmbedFile(path)
 	if err != nil {
@@ -97,7 +126,11 @@ func readEmbedFile(path string) ([]byte, error) {
 	return os.ReadFile(path)
 }
 
-func loadBytes(path string, data []byte) (*MemoryStore, error) {
+func loadBytes(path string, data []byte, verifyChecksum ...bool) (*MemoryStore, error) {
+	verify := true
+	if len(verifyChecksum) > 0 {
+		verify = verifyChecksum[0]
+	}
 	fail := func(offset int, err error) (*MemoryStore, error) { return nil, &FileError{path, int64(offset), err} }
 	if len(data) < 4+2+4+32 {
 		return fail(0, ErrInvalidFile)
@@ -110,7 +143,7 @@ func loadBytes(path string, data []byte) (*MemoryStore, error) {
 		return fail(4, ErrUnsupportedVersion)
 	}
 	got := sha256.Sum256(data[:len(data)-32])
-	if !bytes.Equal(got[:], data[len(data)-32:]) {
+	if verify && !bytes.Equal(got[:], data[len(data)-32:]) {
 		return fail(len(data)-32, ErrInvalidFile)
 	}
 	off := 6
