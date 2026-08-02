@@ -4,7 +4,7 @@
 
 `embedstore`는 JSON 콘텐츠를 OpenAI 임베딩으로 변환해 하나의 `.embed` 파일로 만들고, CLI와 Go 모듈에서 메모리 기반 의미 검색을 제공해야 한다.
 
-MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체 메모리 로드 및 완전 탐색이다. 기존 `.embed` 병합 build, 대화형 shell, evaluate, metadata 필터, mmap, 양자화 및 ANN 인덱스는 MVP 이후 범위다.
+MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체 메모리 로드, 완전 탐색 및 기존 `.embed` 병합 build다. 대화형 shell, evaluate, metadata 필터, mmap, 양자화 및 ANN 인덱스는 MVP 이후 범위다.
 
 ## 기능 요구사항
 
@@ -27,12 +27,12 @@ MVP의 지원 범위는 JSON 배열 입력, OpenAI, `float32`, 정규화, 전체
 - `embedstore build`는 `--input`, `--output`, `--embedding`을 받아 `.embed` 파일을 생성해야 한다. `datasetName`과 `datasetVersion`은 입력 JSON에서 읽는다.
 - build는 입력 검증, 임베딩 생성, 차원 확인, 정규화, 파일 작성, 파일 검증의 순서로 수행해야 한다.
 - 임베딩은 배치 요청으로 순차 전송해야 한다.
-- OpenAI 기본 배치 상한은 요청당 최대 100개 항목과 누적 100,000 입력 토큰이어야 한다. 두 상한 중 먼저 도달하는 지점에서 배치를 분할해야 한다.
+- OpenAI 기본 배치 상한은 요청당 최대 100개 항목과 누적 100,000 **추정** 입력 토큰이어야 한다. 두 상한 중 먼저 도달하는 지점에서 순차 배치를 분할해야 한다.
 - MVP의 기본 embedding provider는 OpenAI이며 `OPENAI_API_KEY`를 지원해야 한다.
 - `--embedding`은 필수이며 `<provider>/<model>` 형식이어야 한다. MVP의 유효 provider는 `openai`다. 예: `--embedding openai/text-embedding-3-small`.
 - `--dimensions`, `--batch-size`, `--max-batch-tokens`, `--overwrite`, `--reuse`, `--include-content`, `--timeout`, `--max-retries` 옵션을 제공해야 한다.
-- `--batch-size`는 요청당 최대 항목 수이며 기본값은 100이다. `--max-batch-tokens`는 요청당 누적 입력 토큰 상한이며 기본값은 100,000이다.
-- `--timeout`의 기본값은 30초이고, `--max-retries`의 기본값은 5다.
+- `--batch-size`는 요청당 최대 항목 수이며 기본값은 100이다. `--max-batch-tokens`는 요청당 누적 **추정** 입력 토큰 상한이며 기본값은 100,000이다. 값이 0 이하면 토큰 상한을 적용하지 않는다.
+- `--timeout`의 기본값은 30초이고, `--max-retries`의 기본값은 5다. `--max-retries`는 최초 요청 이후 일시적 오류에 적용할 재시도 횟수다.
 - build의 `--include-content` 기본값은 `true`다. content를 포함한 파일은 이후 `--reuse` 병합 build의 원본으로 사용할 수 있다.
 - 저장 벡터와 쿼리 벡터는 항상 L2 정규화해야 하며, 이를 비활성화하는 CLI 옵션을 제공해서는 안 된다.
 - 출력 경로에 파일이 이미 있으면 기본적으로 build를 실패시켜야 한다. `--overwrite`를 명시한 경우에만 검증을 마친 임시 파일을 원자적으로 기존 파일과 교체해야 한다.
@@ -263,7 +263,7 @@ embedstore verify \
 ### Go 모듈
 
 - 루트 패키지는 `LoadFile`, `NewEngine`, `Search`, `SearchVector`, `Manifest`, `DecodeData`를 제공해야 한다.
-- `LoadFile`은 checksum 검증과 memory mode 설정 옵션을 받아야 한다. MVP의 memory mode는 일반 메모리 로드다.
+- `LoadFile(path)`은 안정적인 no-options entry point이며 checksum 검증을 기본적으로 활성화한다. 명시적 옵션은 `LoadFileWithOptions(path, options)`에서 사용한다. `LoadOptions.VerifyChecksum`이 nil이면 활성화되고 false는 checksum 비교만 생략하며, 구조·metadata·vector 검증은 계속해야 한다. MVP memory mode는 빈 값 또는 `MemoryModeLoad`인 일반 메모리 로드만 지원하고 다른 값은 오류다. `VerifyFile`은 항상 checksum을 검증한다.
 - `Store`는 `Manifest()`, `Count()`, `SearchVector(...)`, `Close()`를 제공해야 한다.
 - `Embedder`는 배치 `Embed`, `Embedding`, `Dimensions`를 제공해야 한다.
 - `SearchOptions`는 최소한 `Limit`, `MinScore`를 포함해야 한다. Go API에서 `Limit`이 0이면 기본값 5를 적용해야 한다.
@@ -274,7 +274,7 @@ embedstore verify \
 ## 파일 포맷 요구사항
 
 - 파일 확장자는 `.embed`를 사용해야 한다.
-- 파일은 magic bytes, file format version, header length, manifest, metadata index, metadata JSON, `float32` vectors, checksum을 포함하는 단일 파일이어야 한다.
+- 파일은 magic bytes, file format version, header length, manifest, 저장 순서의 length-prefixed metadata JSON records, `float32` vectors, checksum을 포함하는 단일 파일이어야 한다. MVP v1에는 metadata index를 두지 않는다.
 - MVP의 vector type은 `float32`만 지원해야 한다.
 - 저장 벡터와 쿼리 벡터는 L2 정규화해야 한다.
 - manifest에는 format version, dataset name/version, `<provider>/<model>` 형식의 embedding, dimensions, vector type, normalized, item count, created at, source checksum, content 포함 여부를 기록해야 한다.
@@ -320,10 +320,10 @@ ErrInvalidQuery
 
 | 버전 | 범위 |
 | --- | --- |
-| `v0.1.0` | MVP: file format, memory search, OpenAI, validate/build/search/inspect/verify |
-| `v0.2.0` | 기존 `.embed` 병합 build, shell, evaluate |
+| `v0.1.0` | MVP: file format, memory search, OpenAI, validate/build/search/inspect/verify, 기존 `.embed` 병합 build |
+| `v0.2.0` | shell, evaluate |
 | `v0.3.0` | labels 기반 필터, batch query, benchmark command |
 | `v0.4.0` | mmap, 추가 embedding provider |
 | `v1.0.0` | 파일 포맷과 공개 API 안정화, 운영 검증 완료 |
 
-릴리스 자동화는 Go test, vet, staticcheck, race test, GoReleaser, 플랫폼별 압축 산출물과 `checksums.txt` 생성을 포함해야 한다.
+릴리스 자동화는 GitHub Actions에서 모든 push와 pull request의 format 검사, Go test, vet, diff 검사, staticcheck, Linux race test를 실행해야 한다. `v*` 태그 push는 GoReleaser를 실행해 GitHub Release와 플랫폼별 압축 산출물 및 SHA-256 `checksums.txt`를 생성해야 한다.

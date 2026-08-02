@@ -22,7 +22,7 @@ source.json
 | --- | --- |
 | 프로젝트 / 패키지 | `embedstore` |
 | CLI 바이너리 | `embedstore` |
-| Go module | `github.com/<organization>/embedstore` |
+| Go module | `github.com/gamzabox/embedstore` |
 | 벡터 파일 | `*.embed` |
 
 초기 버전은 수천~수만 개 항목을 대상으로 한 완전 탐색을 지원한다. HNSW, 메모리 매핑, 양자화, 다중 provider는 확장 범위다.
@@ -61,7 +61,8 @@ root package         Store, MemoryStore, Engine, 공개 타입과 오류
 
 ### 검색
 
-1. `LoadFile`은 manifest, metadata, 벡터를 검증한 후 메모리에 적재한다.
+1. `LoadFile(path)`은 manifest, metadata, 벡터를 검증한 후 메모리에 적재한다. `LoadFileWithOptions(path, options)`는 명시적 loader 옵션이 필요한 경우에 사용한다.
+   기본 호출은 checksum 검증을 수행한다. `LoadOptions.VerifyChecksum`이 nil이면 검증하며, false는 checksum 비교만 생략한다. MVP는 빈 memory mode 또는 `MemoryModeLoad`만 허용하고 다른 mode는 오류다. `VerifyFile`은 옵션과 무관하게 항상 checksum을 검증한다.
 2. CLI search는 manifest의 embedding으로 provider client를 선택하고 문자열 쿼리를 임베딩한다. Go `Engine.Search`는 제공받은 `Embedder`로 쿼리를 임베딩한다.
 3. 쿼리 벡터를 정규화하고 파일 manifest의 임베딩 식별자 및 차원과 호환되는지 확인한다.
 4. `MemoryStore.SearchVector`가 모든 저장 벡터와 내적을 계산한다.
@@ -124,11 +125,13 @@ build는 입력 JSON의 항목과 reuse 파일의 항목을 ID 기준으로 병�
 ```text
 magic bytes | format version | header length
 manifest
-metadata index
-metadata JSON blocks
+sequential item records (metadata length + metadata JSON)
 contiguous float32 vectors
 checksum
 ```
+
+Version 1 uses little-endian encoding for fixed-width fields. After the four-byte `EMBD` magic, the header is a `uint16` format version and a `uint32` manifest length followed by manifest JSON. It then stores exactly `itemCount` sequential item records, each a little-endian `uint32` metadata length followed by that item JSON; v1 has no metadata index. The vector region follows immediately and contains `itemCount * dimensions` little-endian IEEE-754 `float32` values in item order. The final 32 bytes are the SHA-256 checksum of every preceding byte.
+
 
 Manifest에는 최소한 다음을 기록한다.
 
@@ -218,4 +221,4 @@ OpenAI MVP의 기본 배치 정책은 요청당 최대 100개 항목 및 누적 
 
 Go module 버전, dataset 버전, file format 버전은 각각 독립적이다. 예를 들어 module `v0.3.0`이 file format `1`, dataset `1.7.0`을 읽을 수 있다.
 
-MVP 후에는 기존 `.embed` 병합 빌드, shell, 평가 도구, 평면 labels 필터, mmap, 양자화, 다른 provider, HNSW를 차례로 추가한다. 파일 포맷 버전 1은 v1.0.0 이전에도 호환성 정책을 명확히 유지하며, 호환되지 않는 변경은 새 포맷 버전으로만 도입한다.
+MVP 후에는 shell, 평가 도구, 평면 labels 필터, mmap, 양자화, 다른 provider, HNSW를 차례로 추가한다. 기존 `.embed` 병합 빌드는 v0.1 MVP에 포함한다. 파일 포맷 버전 1은 v1.0.0 이전에도 호환성 정책을 명확히 유지하며, 호환되지 않는 변경은 새 포맷 버전으로만 도입한다.
