@@ -43,6 +43,8 @@
 
 ## 최근 완료
 
+- README에 Go 1.22 이상 기준의 라이브러리·CLI 빌드와 test/vet/diff/race 개발 검증 방법 추가.
+
 - GitHub Actions CI와 GoReleaser 설정: 모든 push/PR의 format·test·vet·diff·staticcheck·Linux race 검사, `v*` 태그의 GitHub Release 및 Linux amd64/arm64·macOS amd64/arm64·Windows amd64 archive와 SHA-256 `checksums.txt` 생성.
 - planner → actor → evaluator 검토 완료: 차단 이슈 없음. release checkout은 credential을 남기지 않고 GoReleaser에만 명시적 `GITHUB_TOKEN`을 전달한다.
 - 로컬 검증: CI format 명령, `go test ./...`, `go vet ./...`, `git diff --check`. 이 환경에는 YAML validator와 GoReleaser CLI가 없어 workflow YAML 및 `goreleaser check`/snapshot release는 GitHub Actions의 최초 실행에서 확인해야 한다.

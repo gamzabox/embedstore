@@ -377,6 +377,30 @@ git push origin v0.1.0
 
 태그를 만들기 전에 일반 push 또는 pull request CI가 통과했는지 확인하세요.
 
+## 개발: 빌드와 테스트
+
+Go 1.22 이상에서 다음 명령으로 라이브러리와 CLI를 빌드할 수 있습니다.
+
+```bash
+go build ./...
+go build -o ./bin/embedstore ./cmd/embedstore
+./bin/embedstore
+```
+
+변경 후에는 다음 기본 검증을 실행합니다.
+
+```bash
+go test ./...
+go vet ./...
+git diff --check
+```
+
+동시성, 파일 reader, 공개 API 또는 검색 엔진을 변경한 경우에는 지원되는 환경에서 race detector도 실행합니다.
+
+```bash
+go test -race ./...
+```
+
 ## 문서
 
 - [아키텍처](docs/ARCHITECTURE.md)
