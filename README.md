@@ -366,6 +366,17 @@ results, err := store.SearchVector(ctx, queryVector, embedstore.SearchOptions{
 - build는 content를 외부 provider에 전송합니다. 민감한 원본 데이터를 사용할 때는 조직의 보안·보존 정책을 먼저 확인하세요.
 - build 실패 시 기존 output 파일은 바꾸지 않습니다. 기존 파일을 교체하려면 `--overwrite`를 명시하세요.
 
+## CI와 릴리스
+
+GitHub Actions CI는 모든 push와 pull request에서 포맷, 테스트, vet, diff, staticcheck 및 Linux race detector를 검사합니다. `v*` 태그를 push하면 GoReleaser가 Linux amd64/arm64, macOS amd64/arm64, Windows amd64용 archive와 SHA-256 `checksums.txt`를 포함한 GitHub Release를 만듭니다.
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+태그를 만들기 전에 일반 push 또는 pull request CI가 통과했는지 확인하세요.
+
 ## 문서
 
 - [아키텍처](docs/ARCHITECTURE.md)

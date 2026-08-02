@@ -326,4 +326,4 @@ ErrInvalidQuery
 | `v0.4.0` | mmap, 추가 embedding provider |
 | `v1.0.0` | 파일 포맷과 공개 API 안정화, 운영 검증 완료 |
 
-릴리스 자동화는 Go test, vet, staticcheck, race test, GoReleaser, 플랫폼별 압축 산출물과 `checksums.txt` 생성을 포함해야 한다.
+릴리스 자동화는 GitHub Actions에서 모든 push와 pull request의 format 검사, Go test, vet, diff 검사, staticcheck, Linux race test를 실행해야 한다. `v*` 태그 push는 GoReleaser를 실행해 GitHub Release와 플랫폼별 압축 산출물 및 SHA-256 `checksums.txt`를 생성해야 한다.

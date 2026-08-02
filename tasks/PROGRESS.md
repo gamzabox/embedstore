@@ -41,10 +41,15 @@
 | `go test -race ./...` | 실행 불가 | ThreadSanitizer가 환경의 unsupported VMA range로 테스트 시작 전 종료 |
 | `go test -run=^$ -fuzz=FuzzParseDataset -fuzztime=10s .` | 통과 | 5개 seed 기준 약 8.2만 입력, 새 흥미 입력 75개 |
 
+## 최근 완료
+
+- GitHub Actions CI와 GoReleaser 설정: 모든 push/PR의 format·test·vet·diff·staticcheck·Linux race 검사, `v*` 태그의 GitHub Release 및 Linux amd64/arm64·macOS amd64/arm64·Windows amd64 archive와 SHA-256 `checksums.txt` 생성.
+- planner → actor → evaluator 검토 완료: 차단 이슈 없음. release checkout은 credential을 남기지 않고 GoReleaser에만 명시적 `GITHUB_TOKEN`을 전달한다.
+- 로컬 검증: CI format 명령, `go test ./...`, `go vet ./...`, `git diff --check`. 이 환경에는 YAML validator와 GoReleaser CLI가 없어 workflow YAML 및 `goreleaser check`/snapshot release는 GitHub Actions의 최초 실행에서 확인해야 한다.
+
 ## 남은 구현 범위
 
 - 1천/1만/5만 항목과 512/1,024/1,536 차원의 검색 benchmark.
-- CI 품질 게이트(`gofmt`, test, vet, 지원 환경의 race, diff, staticcheck)와 GoReleaser·아카이브·checksum 릴리스 자동화.
 - v0.2 후속 기능: interactive shell과 evaluate 명령.
 - v0.3 이후: labels 필터, batch query, mmap, 추가 provider, ANN/HNSW 등.
 
